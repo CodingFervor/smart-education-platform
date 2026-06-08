@@ -10,28 +10,33 @@ import (
 type Claims struct {
 	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
-	Role     string `json:"role"` // student | teacher | admin
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(secret string, userID int64, username, role string, expireSeconds int) (string, error) {
+var secretKey = []byte("change-me-in-production")
+
+func SetSecret(secret string) {
+	secretKey = []byte(secret)
+}
+
+func GenerateToken(userID int64, username, role string, expireHours int) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireSeconds) * time.Second)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireHours) * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "education-platform",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
+	return token.SignedString(secretKey)
 }
 
-func ParseToken(secret string, tokenString string) (*Claims, error) {
+func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
+		return secretKey, nil
 	})
 	if err != nil {
 		return nil, err

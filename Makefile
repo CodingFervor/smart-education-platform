@@ -1,31 +1,28 @@
-.PHONY: build run test clean swagger docker
+.PHONY: build run test clean docker-up docker-down
 
-APP_NAME=education-platform
+APP_NAME=smart-education-platform
 BUILD_DIR=./bin
 
 build:
-	go build -o $(BUILD_DIR)/$(APP_NAME) ./cmd/api/
+	go build -o $(BUILD_DIR)/$(APP_NAME) ./cmd/api
 
 run:
-	go run ./cmd/api/
+	go run ./cmd/api
 
 test:
-	go test -v -cover ./...
+	go test ./... -v
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-swagger:
-	swag init -g cmd/api/main.go -o docs/swagger
-
-docker:
-	docker-compose up -d --build
+docker-up:
+	docker-compose up -d
 
 docker-down:
 	docker-compose down
 
-migrate:
-	psql -f sql/init.sql $(DATABASE_URL)
+deps:
+	go mod tidy
 
 lint:
-	golangci-lint run
+	golangci-lint run ./...
