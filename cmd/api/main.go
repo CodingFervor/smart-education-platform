@@ -7,6 +7,8 @@ import (
 	"github.com/CodingFervor/smart-education-platform/internal/handler"
 	"github.com/CodingFervor/smart-education-platform/internal/middleware"
 	"github.com/gin-gonic/gin"
+
+	"github.com/CodingFervor/smart-education-platform/internal/database"
 )
 
 func main() {
